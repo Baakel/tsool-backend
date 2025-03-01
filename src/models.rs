@@ -3,8 +3,13 @@ use std::sync::LazyLock;
 use axum::{http::StatusCode, response::IntoResponse, Json};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use surrealdb::{engine::any::Any, engine::remote::ws::Client, Surreal};
+use surrealdb::{
+    engine::{any::Any, remote::ws::Client},
+    Datetime, RecordId, Surreal,
+};
 use thiserror::Error;
+
+pub mod routes;
 
 pub struct AppState {
     pub db: Surreal<Any>,
@@ -13,16 +18,26 @@ pub struct AppState {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Todo {
     pub value: String,
-    pub completed: Option<DateTime<Utc>>,
-    pub created: DateTime<Utc>,
-    pub deadline: Option<DateTime<Utc>>,
+    pub completed: Option<Datetime>,
+    pub created: Datetime,
+    pub deadline: Option<Datetime>,
+    pub priority: Priority,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SurrealTodo {
+    pub id: RecordId,
+    pub value: String,
+    pub completed: Option<Datetime>,
+    pub created: Datetime,
+    pub deadline: Option<Datetime>,
     pub priority: Priority,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Goal {
     pub value: String,
-    pub completed: Option<DateTime<Utc>>,
+    pub completed: Option<Datetime>,
     pub created: DateTime<Utc>,
 }
 
@@ -65,8 +80,8 @@ impl Todo {
         Self {
             value: value.to_string(),
             completed: None,
-            created: now,
-            deadline,
+            created: now.into(),
+            deadline: deadline.map(|v| v.into()),
             priority: priority.unwrap_or(Priority::Low),
         }
     }
@@ -74,7 +89,7 @@ impl Todo {
 
 impl Task for Todo {
     fn complete(&mut self) {
-        self.completed = Some(Utc::now());
+        self.completed = Some(Utc::now().into());
     }
 
     fn uncomplete(&mut self) {
@@ -84,7 +99,7 @@ impl Task for Todo {
 
 impl Task for Goal {
     fn complete(&mut self) {
-        self.completed = Some(Utc::now());
+        self.completed = Some(Utc::now().into());
     }
 
     fn uncomplete(&mut self) {
