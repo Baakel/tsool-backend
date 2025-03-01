@@ -24,6 +24,19 @@ impl From<AddTodoRequest> for Todo {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct CompleteTodoReq {
+pub struct TodoReq {
     pub id: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DeadlineReq {
+    pub id: String,
+    pub deadline: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PriorityReq {
+    pub id: String,
+    #[serde(default)]
+    pub priority: Option<Priority>,
 }

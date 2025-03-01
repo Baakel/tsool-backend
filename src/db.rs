@@ -1,8 +1,5 @@
 use surrealdb::{
-    engine::{
-        any::{self, Any},
-        remote::ws::{Client, Wss},
-    },
+    engine::any::{self, Any},
     opt::auth::Root,
     Surreal,
 };
@@ -10,7 +7,7 @@ use tracing::info;
 
 use crate::{
     config::CONFIG,
-    models::{Goal, Todo, TsoolError, DB},
+    models::{Goal, Todo, TsoolError},
 };
 
 pub async fn upsert_todo(todo: &Todo) -> Result<(), TsoolError> {

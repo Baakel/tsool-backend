@@ -1,4 +1,4 @@
-use std::sync::LazyLock;
+use std::{fmt::Display, sync::LazyLock};
 
 use axum::{http::StatusCode, response::IntoResponse, Json};
 use chrono::{DateTime, Utc};
@@ -31,7 +31,7 @@ pub struct SurrealTodo {
     pub completed: Option<Datetime>,
     pub created: Datetime,
     pub deadline: Option<Datetime>,
-    pub priority: Priority,
+    pub priority: Option<Priority>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -57,10 +57,7 @@ pub enum TsoolError {
     DB(#[from] surrealdb::Error),
 }
 
-pub static DB: LazyLock<Surreal<Client>> = LazyLock::new(|| {
-    let db = Surreal::init();
-    db
-});
+pub static DB: LazyLock<Surreal<Client>> = LazyLock::new(Surreal::init);
 
 impl IntoResponse for TsoolError {
     fn into_response(self) -> axum::response::Response {
@@ -110,4 +107,17 @@ impl Task for Goal {
 trait Task {
     fn complete(&mut self);
     fn uncomplete(&mut self);
+}
+
+impl Display for Priority {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str_rep = match self {
+            Priority::Low => "low",
+            Priority::Medium => "medium",
+            Priority::High => "high",
+            Priority::Urgent => "urgent",
+            Priority::Unknown => "unknown",
+        };
+        write!(f, "{str_rep}")
+    }
 }
