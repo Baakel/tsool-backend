@@ -1,3 +1,6 @@
+pub mod goals;
+pub mod todos;
+
 use surrealdb::{
     engine::any::{self, Any},
     opt::auth::Root,
@@ -5,26 +8,7 @@ use surrealdb::{
 };
 use tracing::info;
 
-use crate::{
-    config::CONFIG,
-    models::{Goal, Todo, TsoolError},
-};
-
-pub async fn upsert_todo(todo: &Todo) -> Result<(), TsoolError> {
-    todo!()
-}
-
-pub async fn get_todos() -> Result<Vec<Todo>, TsoolError> {
-    todo!()
-}
-
-pub async fn upsert_goal(goal: &Goal) -> Result<(), TsoolError> {
-    todo!()
-}
-
-pub async fn get_todays_goal() -> Result<Goal, TsoolError> {
-    todo!()
-}
+use crate::{config::CONFIG, models::TsoolError};
 
 pub async fn initialize_db() -> Result<Surreal<Any>, TsoolError> {
     info!(url = &CONFIG.db_url, "Initializing DB connection");

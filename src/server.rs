@@ -14,8 +14,9 @@ use tracing::info;
 use crate::{
     middleware::auth_middleware,
     models::{AppState, TsoolError},
-    routes::{
-        add_deadline, change_prio, complete_todo, create_todo, delete_todo, get_todos, session,
+    routes::todos::{
+        add_deadline, change_prio, complete_todo_handler, create_todo, delete_todo, get_todos,
+        session,
     },
 };
 
@@ -26,7 +27,7 @@ pub async fn start_server(db: Surreal<Any>) -> Result<(), TsoolError> {
         .route("/session", get(session))
         .route("/add_todo", post(create_todo))
         .route("/get_todos", get(get_todos))
-        .route("/complete", patch(complete_todo))
+        .route("/complete", patch(complete_todo_handler))
         .route("/todos", delete(delete_todo))
         .route("/todos/deadline", patch(add_deadline))
         .route("/todos/priority", patch(change_prio))
