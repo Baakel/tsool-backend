@@ -55,6 +55,8 @@ pub enum Priority {
 pub enum TsoolError {
     #[error("Error while talking to DB: {0}")]
     DB(#[from] surrealdb::Error),
+    #[error("Error encoding token: {0:?}")]
+    JWT(#[from] jsonwebtoken::errors::Error),
 }
 
 pub static DB: LazyLock<Surreal<Client>> = LazyLock::new(Surreal::init);
@@ -65,49 +67,62 @@ impl IntoResponse for TsoolError {
     }
 }
 
-impl Todo {
-    fn new(value: &str, end: Option<DateTime<Utc>>, priority: Option<Priority>) -> Self {
-        let now = Utc::now();
-        let mut deadline = end;
-        if let Some(dl) = end {
-            if dl > now {
-                deadline = None;
-            }
-        }
-        Self {
-            value: value.to_string(),
-            completed: None,
-            created: now.into(),
-            deadline: deadline.map(|v| v.into()),
-            priority: priority.unwrap_or(Priority::Low),
-        }
-    }
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Claims {
+    pub aud: String,
+    pub sub: String,
+    pub company: String,
+    pub exp: u64,
 }
 
-impl Task for Todo {
-    fn complete(&mut self) {
-        self.completed = Some(Utc::now().into());
-    }
-
-    fn uncomplete(&mut self) {
-        self.completed = None;
-    }
+#[derive(Debug, Serialize)]
+pub struct AuthResponse {
+    pub token: String,
 }
 
-impl Task for Goal {
-    fn complete(&mut self) {
-        self.completed = Some(Utc::now().into());
-    }
+// impl Todo {
+//     fn new(value: &str, end: Option<DateTime<Utc>>, priority: Option<Priority>) -> Self {
+//         let now = Utc::now();
+//         let mut deadline = end;
+//         if let Some(dl) = end {
+//             if dl > now {
+//                 deadline = None;
+//             }
+//         }
+//         Self {
+//             value: value.to_string(),
+//             completed: None,
+//             created: now.into(),
+//             deadline: deadline.map(|v| v.into()),
+//             priority: priority.unwrap_or(Priority::Low),
+//         }
+//     }
+// }
 
-    fn uncomplete(&mut self) {
-        self.completed = None;
-    }
-}
+// impl Task for Todo {
+//     fn complete(&mut self) {
+//         self.completed = Some(Utc::now().into());
+//     }
+//
+//     fn uncomplete(&mut self) {
+//         self.completed = None;
+//     }
+// }
+//
+// impl Task for Goal {
+//     fn complete(&mut self) {
+//         self.completed = Some(Utc::now().into());
+//     }
+//
+//     fn uncomplete(&mut self) {
+//         self.completed = None;
+//     }
+// }
 
-trait Task {
-    fn complete(&mut self);
-    fn uncomplete(&mut self);
-}
+// trait Task {
+//     fn complete(&mut self);
+//     fn uncomplete(&mut self);
+// }
 
 impl Display for Priority {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
