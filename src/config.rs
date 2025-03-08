@@ -1,9 +1,12 @@
-use std::{path::Path, sync::LazyLock};
+use std::sync::LazyLock;
 
 use jsonwebtoken::{DecodingKey, EncodingKey};
 
 pub struct Config {
     pub db_url: String,
+    pub database: String,
+    pub namespace: String,
+    pub access_method: String,
     pub user: String,
     pub pass: String,
     pub api_key: String,
@@ -28,6 +31,9 @@ impl Config {
         let decoding_key = DecodingKey::from_ec_pem(&decoding_bytes).unwrap();
         Config {
             db_url: std::env::var("DB_URL").unwrap(),
+            database: "tasks".to_string(),
+            namespace: "tsool".to_string(),
+            access_method: "users".to_string,
             user: std::env::var("DB_USER").unwrap(),
             pass: std::env::var("DB_PASS").unwrap(),
             api_key: std::env::var("API_KEY").unwrap(),

@@ -40,3 +40,9 @@ pub struct PriorityReq {
     #[serde(default)]
     pub priority: Option<Priority>,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct AuthReq {
+    pub user: String,
+    pub pass: String,
+}

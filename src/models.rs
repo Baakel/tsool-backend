@@ -70,6 +70,7 @@ impl IntoResponse for TsoolError {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Claims {
     pub aud: String,
+    pub iss: String,
     pub sub: String,
     pub company: String,
     pub exp: u64,

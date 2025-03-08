@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use surrealdb::{engine::any::Any, opt::PatchOp, Datetime, Surreal};
+use tracing::info;
 
 use crate::models::{Priority, SurrealTodo, Todo, TsoolError};
 
@@ -12,8 +13,10 @@ pub async fn create_db_todo(
     db: &Surreal<Any>,
     todo: Todo,
 ) -> Result<Option<SurrealTodo>, TsoolError> {
-    let res: Option<SurrealTodo> = db.create("todos").content(todo).await?;
-    Ok(res)
+    // let res: Option<SurrealTodo> = db.create("todos").content(todo).await;
+    let res = db.create("todos").content(todo).await;
+    info!("res is {res:?}");
+    Ok(res.unwrap())
 }
 
 pub async fn delete_db_todo(
