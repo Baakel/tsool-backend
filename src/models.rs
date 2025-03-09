@@ -42,6 +42,14 @@ pub struct Goal {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SurrealGoal {
+    pub id: RecordId,
+    pub value: String,
+    pub completed: Option<Datetime>,
+    pub created: DateTime<Utc>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub enum Priority {
     Low,
