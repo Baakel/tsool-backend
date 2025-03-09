@@ -15,7 +15,7 @@ use crate::{
     middleware::auth_middleware,
     models::{AppState, TsoolError},
     routes::{
-        authorize, signup,
+        authorize, authorize_app, signup,
         todos::{
             add_deadline, change_prio, complete_todo_handler, create_todo, delete_todo, get_todos,
             session,
@@ -35,6 +35,7 @@ pub async fn start_server(db: Surreal<Any>) -> Result<(), TsoolError> {
         .route("/todos/deadline", patch(add_deadline))
         .route("/todos/priority", patch(change_prio))
         .route("/authorize", post(authorize))
+        .route("/authorize_app", post(authorize_app))
         .route("/signup", post(signup))
         .layer(middleware::from_fn_with_state(
             app_state.clone(),

@@ -13,7 +13,7 @@ use axum_extra::{
 };
 use jsonwebtoken::{decode, errors::ErrorKind, Validation};
 use surrealdb::{engine::any::Any, Surreal};
-use tracing::{debug, info};
+use tracing::debug;
 
 use crate::{
     config::CONFIG,
@@ -28,12 +28,9 @@ pub async fn auth_middleware(
     let (mut parts, body) = req.into_parts();
 
     debug!(?parts, "the req parts");
-    match parts.uri.path() {
-        "/authorize" | "/signup" => {
-            let req = Request::from_parts(parts, body);
-            return Ok(next.run(req).await);
-        }
-        _ => (),
+    if parts.uri.path() == "/authorize_app" {
+        let req = Request::from_parts(parts, body);
+        return Ok(next.run(req).await);
     }
 
     let auth: TypedHeader<Authorization<Bearer>> = match parts.extract().await {
@@ -43,11 +40,19 @@ pub async fn auth_middleware(
         }
     };
 
+    match parts.uri.path() {
+        "/authorize" | "/signup" => {
+            validate_token(auth.token())?;
+            let req = Request::from_parts(parts, body);
+            return Ok(next.run(req).await);
+        }
+        _ => (),
+    }
+
     if let Err(e) = validate_user(&state.db, auth.token()).await {
         debug!(error = ?e, "Error while authenticating");
         return Err(StatusCode::UNAUTHORIZED);
     };
-    // validate_token(auth.token())?;
 
     let req = Request::from_parts(parts, body);
 

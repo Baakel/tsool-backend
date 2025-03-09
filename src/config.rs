@@ -33,7 +33,7 @@ impl Config {
             db_url: std::env::var("DB_URL").unwrap(),
             database: "tasks".to_string(),
             namespace: "tsool".to_string(),
-            access_method: "users".to_string,
+            access_method: "users".to_string(),
             user: std::env::var("DB_USER").unwrap(),
             pass: std::env::var("DB_PASS").unwrap(),
             api_key: std::env::var("API_KEY").unwrap(),

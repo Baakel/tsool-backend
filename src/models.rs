@@ -57,13 +57,20 @@ pub enum TsoolError {
     DB(#[from] surrealdb::Error),
     #[error("Error encoding token: {0:?}")]
     JWT(#[from] jsonwebtoken::errors::Error),
+    #[error("You don't have premission")]
+    Unauthorized,
 }
 
 pub static DB: LazyLock<Surreal<Client>> = LazyLock::new(Surreal::init);
 
 impl IntoResponse for TsoolError {
     fn into_response(self) -> axum::response::Response {
-        (StatusCode::INTERNAL_SERVER_ERROR, Json(self.to_string())).into_response()
+        match self {
+            TsoolError::Unauthorized => {
+                (StatusCode::UNAUTHORIZED, Json(self.to_string())).into_response()
+            }
+            _ => (StatusCode::INTERNAL_SERVER_ERROR, Json(self.to_string())).into_response(),
+        }
     }
 }
 
@@ -79,6 +86,19 @@ pub struct Claims {
 #[derive(Debug, Serialize)]
 pub struct AuthResponse {
     pub token: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AppAuthReq {
+    pub secret: String,
+    pub app: AuthorizedApp,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AuthorizedApp {
+    XibalbaFrontend,
+    TsoolTui,
 }
 
 // impl Todo {
@@ -133,6 +153,16 @@ impl Display for Priority {
             Priority::High => "high",
             Priority::Urgent => "urgent",
             Priority::Unknown => "unknown",
+        };
+        write!(f, "{str_rep}")
+    }
+}
+
+impl Display for AuthorizedApp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str_rep = match self {
+            AuthorizedApp::TsoolTui => "tsool_tui",
+            AuthorizedApp::XibalbaFrontend => "xibalba_frontend",
         };
         write!(f, "{str_rep}")
     }
