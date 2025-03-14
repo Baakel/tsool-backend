@@ -38,7 +38,7 @@ pub struct SurrealTodo {
 pub struct Goal {
     pub value: String,
     pub completed: Option<Datetime>,
-    pub created: DateTime<Utc>,
+    pub created: Datetime,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -46,7 +46,7 @@ pub struct SurrealGoal {
     pub id: RecordId,
     pub value: String,
     pub completed: Option<Datetime>,
-    pub created: DateTime<Utc>,
+    pub created: Datetime,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -173,5 +173,15 @@ impl Display for AuthorizedApp {
             AuthorizedApp::XibalbaFrontend => "xibalba_frontend",
         };
         write!(f, "{str_rep}")
+    }
+}
+
+impl Goal {
+    pub fn new(value: String, completed: Option<DateTime<Utc>>) -> Self {
+        Self {
+            value,
+            created: Datetime::from(Utc::now()),
+            completed: completed.map(Datetime::from),
+        }
     }
 }

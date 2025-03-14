@@ -16,7 +16,7 @@ use crate::{
     models::{AppState, TsoolError},
     routes::{
         authorize, authorize_app,
-        goals::create_goal,
+        goals::{create_goal, get_todays_goal_handler},
         signup,
         todos::{
             add_deadline, change_prio, complete_todo_handler, create_todo, delete_todo, get_todos,
@@ -39,7 +39,7 @@ pub async fn start_server(db: Surreal<Any>) -> Result<(), TsoolError> {
         .route("/authorize", post(authorize))
         .route("/authorize_app", post(authorize_app))
         .route("/signup", post(signup))
-        .route("/goal", post(create_goal))
+        .route("/goal", post(create_goal).get(get_todays_goal_handler))
         .layer(middleware::from_fn_with_state(
             app_state.clone(),
             auth_middleware,

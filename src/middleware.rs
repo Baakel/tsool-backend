@@ -42,7 +42,8 @@ pub async fn auth_middleware(
 
     match parts.uri.path() {
         "/authorize" | "/signup" => {
-            validate_token(auth.token())?;
+            // validate_token(auth.token())?;
+            validate_api_key(auth.token())?;
             let req = Request::from_parts(parts, body);
             return Ok(next.run(req).await);
         }
@@ -84,5 +85,12 @@ fn validate_token(token: &str) -> Result<(), StatusCode> {
         }
     };
     debug!("{token_data:?}");
+    Ok(())
+}
+
+fn validate_api_key(key: &str) -> Result<(), StatusCode> {
+    if key != CONFIG.api_key {
+        return Err(StatusCode::UNAUTHORIZED);
+    }
     Ok(())
 }

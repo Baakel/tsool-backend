@@ -46,3 +46,8 @@ pub struct AuthReq {
     pub user: String,
     pub pass: String,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct GoalInput {
+    pub value: String,
+}
